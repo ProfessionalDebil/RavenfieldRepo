@@ -4,8 +4,8 @@ function APS:Start()
     self.vehicle = self.targets.vehicleObject.GetComponent(Vehicle)
     self.accelComponent = self.vehicle.gameObject.GetComponent(Car)
     self.dataContainer = self.gameObject.GetComponent(DataContainer)
-	GameEvents.onActorSpawn.AddListener(self, "onActorSpawn")
-	GameEvents.onVehicleSpawn.AddListener(self, "onVehicleSpawn")
+    GameEvents.onActorSpawn.AddListener(self, "onActorSpawn")
+    GameEvents.onVehicleSpawn.AddListener(self, "onVehicleSpawn")
     self.projectilesWatched = {}
     self.countering = false
     self.counterProj = nil
