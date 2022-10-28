@@ -28,6 +28,11 @@ function APS:Start()
     -- APS range
     self.range = self.dataContainer.GetFloat("apsRange")
 
+    self.apsReloadImmobilize = false
+    if self.dataContainer.HasBool("reloadImmobilize") then
+        self.apsReloadImmobilize = self.dataContainer.GetBool("reloadImmobilize")
+    end
+
     self.accel = self.accelComponent.acceleration
     self.turnTorque = self.accelComponent.baseTurnTorque
 end
@@ -45,8 +50,11 @@ function APS:LoadAPS()
     local ammoDelta = self.maxAmmo - self.apsAmmo
     local loadDuration = self.loadDuration * ammoDelta
     local timePassed = 0
-    self.accelComponent.acceleration = 0
-    self.accelComponent.baseTurnTorque = 0
+    
+    if self.apsReloadImmobilize then
+        self.accelComponent.acceleration = 0
+        self.accelComponent.baseTurnTorque = 0
+    end
 
     coroutine.yield(WaitForSeconds(loadDuration))
     
