@@ -4,6 +4,30 @@ function APS:Start()
     self.vehicle = self.targets.vehicleObject.GetComponent(Vehicle)
     self.accelComponent = self.vehicle.gameObject.GetComponent(Car)
     self.dataContainer = self.gameObject.GetComponent(DataContainer)
+
+    for i, actor in pairs(ActorManager.actors) do
+        for i, weapon in pairs(actor.weaponSlots) do
+            local weaponRole = weapon.GenerateWeaponRoleFromStats()
+            if weaponRole == WeaponRole.RocketLauncher or weaponRole == WeaponRole.MissileLauncher then
+                weapon.onSpawnProjectiles.AddListener(self, "onProjectileSpawned")
+            end
+        end
+    end
+
+    for i, vehicle in pairs(ActorManager.vehicles) do
+        for i, seat in pairs(vehicle.seats) do
+            for l, weapon in pairs(seat.weapons) do
+                if weapon == nil then
+                    return
+                end
+                local weaponRole = weapon.GenerateWeaponRoleFromStats()
+                if weaponRole == WeaponRole.RocketLauncher or weaponRole == WeaponRole.MissileLauncher then
+                    weapon.onSpawnProjectiles.AddListener(self, "onProjectileSpawned")
+                end
+            end
+        end
+    end
+
     GameEvents.onActorSpawn.AddListener(self, "onActorSpawn")
     GameEvents.onVehicleSpawn.AddListener(self, "onVehicleSpawn")
     self.projectilesWatched = {}
@@ -50,7 +74,7 @@ function APS:LoadAPS()
     local ammoDelta = self.maxAmmo - self.apsAmmo
     local loadDuration = self.loadDuration * ammoDelta
     local timePassed = 0
-    
+
     if self.apsReloadImmobilize then
         self.accelComponent.acceleration = 0
         self.accelComponent.baseTurnTorque = 0
