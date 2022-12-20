@@ -5,6 +5,30 @@ function FixedAPS:Start()
     self.vehicleTransform = self.vehicle.transform
     self.accelComponent = self.vehicle.gameObject.GetComponent(Car)
     self.dataContainer = self.gameObject.GetComponent(DataContainer)
+
+    for i, actor in pairs(ActorManager.actors) do
+        for i, weapon in pairs(actor.weaponSlots) do
+            local weaponRole = weapon.GenerateWeaponRoleFromStats()
+            if weaponRole == WeaponRole.RocketLauncher or weaponRole == WeaponRole.MissileLauncher then
+                weapon.onSpawnProjectiles.AddListener(self, "onProjectileSpawned")
+            end
+        end
+    end
+
+    for i, vehicle in pairs(ActorManager.vehicles) do
+        for i, seat in pairs(vehicle.seats) do
+            for l, weapon in pairs(seat.weapons) do
+                if weapon == nil then
+                    return
+                end
+                local weaponRole = weapon.GenerateWeaponRoleFromStats()
+                if weaponRole == WeaponRole.RocketLauncher or weaponRole == WeaponRole.MissileLauncher then
+                    weapon.onSpawnProjectiles.AddListener(self, "onProjectileSpawned")
+                end
+            end
+        end
+    end
+
     GameEvents.onActorSpawn.AddListener(self, "onActorSpawn")
     GameEvents.onVehicleSpawn.AddListener(self, "onVehicleSpawn")
     self.projectilesWatched = {}
@@ -23,17 +47,17 @@ function FixedAPS:Start()
 
     self.allAps = {}
     self.apsIndex = {}
-    self.availableAps = {}
     self.apsParticle = {}
     self.apsTransform = {}
 
     for i, aps in pairs(self.dataContainer.GetGameObjectArray("aps")) do
         self.allAps[i] = aps
         self.apsIndex[aps] = i
-        self.availableAps[i] = aps
         self.apsParticle[i] = aps.GetComponentInChildren(ParticleSystem)
         self.apsTransform[i] = aps.transform
     end
+
+    self.availableAps = self.allAps
 
     self.apsReloadImmobilize = false
     if self.dataContainer.HasBool("reloadImmobilize") then
@@ -117,31 +141,38 @@ function FixedAPS:Update()
             end
         end
     end
-    
+
     if #self.availableAps > 0 then
         local projInRange = {}
+        local projIndex = {}
         for i, proj in pairs(self.projectilesWatched) do -- get all projectile in range
             local projectileDistance = Vector3.Distance(self.vehicle.transform.position, proj.transform.position)
             if projectileDistance <= self.range then
                 projInRange[#projInRange + 1] = proj-- put all the projectile in range in list
+                projIndex[#projIndex + 1] = i
             end
         end
 
         for i, proj in pairs(projInRange) do
             local projTransform = proj.transform
+            local projDestroyed = false
 
             for j, apsTransform in pairs(self.apsTransform) do
-                local direction = apsTransform.forward
-                local positionDelta = projTransform.position - apsTransform.position
-                local angleToProjectile = Vector3.Angle(positionDelta, direction)
+                local apsGO = apsTransform.gameObject
+                local apsIndex = self.apsIndex[apsGO]
+                if self.availableAps[apsIndex] ~= 0 and not projDestroyed then
+                    local direction = apsTransform.forward
+                    local positionDelta = projTransform.position - apsTransform.position
+                    local angleToProjectile = Vector3.Angle(positionDelta, direction)
 
-                if angleToProjectile <= self.arcRadius then
-                    proj.Stop(false)
-                    local apsIndex = self.apsIndex[apsTransform.gameObject]
-                    self.apsParticle[apsIndex].Play(true)
-                    table.remove(self.availableAps, j)
-
-                    break
+                    if angleToProjectile <= self.arcRadius then
+                        proj.Stop(false)
+                        projDestroyed = true
+                        self.apsParticle[apsIndex].Play(true)
+                        self.availableAps[apsIndex] = 0
+                        table.remove(self.projectilesWatched, projIndex[i])
+                        break
+                    end
                 end
             end
         end
