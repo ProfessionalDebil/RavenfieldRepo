@@ -64,6 +64,15 @@ function FixedAPS:Start()
         self.apsReloadImmobilize = self.dataContainer.GetBool("reloadImmobilize")
     end
 
+    self.full = Color(0, 255, 0)
+    self.empty = Color(255, 0, 0)
+
+    self.imageIndicators = {}
+    
+    for i, indicator in pairs(self.dataContainer.GetGameObjectArray("indicator")) do
+        self.imageIndicators[i] = indicator.GetComponent(Image)
+    end
+
     self.accel = self.accelComponent.acceleration
     self.turnTorque = self.accelComponent.baseTurnTorque
 end
@@ -89,7 +98,11 @@ function FixedAPS:LoadAPS()
     end
 
     coroutine.yield(WaitForSeconds(loadDuration))
-    
+
+    for i, indicator in pairs(self.imageIndicators) do
+        indicator.color = self.full
+    end
+        
     self.availableAps = self.allAps
     self.accelComponent.acceleration = self.accel
     self.accelComponent.baseTurnTorque = self.turnTorque
@@ -170,6 +183,11 @@ function FixedAPS:Update()
                         projDestroyed = true
                         self.apsParticle[apsIndex].Play(true)
                         self.availableAps[apsIndex] = 0
+
+                        if self.imageIndicators[apsIndex] ~= nil then
+                            self.imageIndicators[apsIndex].color = self.empty
+                        end
+
                         table.remove(self.projectilesWatched, projIndex[i])
                         break
                     end
