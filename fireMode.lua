@@ -31,6 +31,9 @@ function fireMode:Start()
     self.forceSemi = self.dataContainer.GetBool("FIREMODE_FORCE_SEMI")
 
     self.animator.SetInteger("FIREMODE_SELECTORVALUES", tonumber(self.selectorValues[(modeIndex % #self.availableModes) + 1]))
+
+    -- load keybind
+    self.keybind = self.dataContainer.GetString("keybind")
 end
 
 function fireMode:onFire()
@@ -84,7 +87,7 @@ function fireMode:Update()
         self.shotsFired = 0
     end
 
-    if Input.GetKeyDown(KeyCode.Equals) then
+    if Input.GetKeyDown(self.keybind) then
         self:changeFireMode()
     end
 end
@@ -99,6 +102,7 @@ end
 
 function fireMode:Zip(keyArray, valueArray)
     result = {}
+
     if #keyArray ~= #valueArray then
         return error("Array length not the same!")
     end
