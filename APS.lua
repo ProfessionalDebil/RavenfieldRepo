@@ -59,6 +59,11 @@ function APS:Start()
 
     self.accel = self.accelComponent.acceleration
     self.turnTorque = self.accelComponent.baseTurnTorque
+
+    self.teams = {}
+    self.teams[-1] = Team.Neutral
+    self.teams[0] = Team.Blue
+    self.teams[1] = Team.Red
 end
 
 function APS:onStartLoad()
@@ -113,7 +118,9 @@ end
 
 function APS:onProjectileSpawned(proj)
     for i, projectile in pairs(proj) do
-        table.insert(self.projectilesWatched, projectile)
+        if projectile.source.team ~= self.teams[self.vehicle.team] then
+            table.insert(self.projectilesWatched, projectile)
+        end
     end
 end
 
