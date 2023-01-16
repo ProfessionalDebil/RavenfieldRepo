@@ -75,10 +75,15 @@ function FixedAPS:Start()
 
     self.accel = self.accelComponent.acceleration
     self.turnTorque = self.accelComponent.baseTurnTorque
+
+    self.teams = {}
+    self.teams[-1] = Team.Neutral
+    self.teams[0] = Team.Blue
+    self.teams[1] = Team.Red
 end
 
 function FixedAPS:onStartLoad()
-    if self.isLoading or #self.allAps == #self.availableAps then
+    if self.isLoading then
         return
     end
     self.script.StartCoroutine("LoadAPS")
@@ -87,7 +92,18 @@ end
 function FixedAPS:LoadAPS()
     self.isLoading = true
 
-    local ammoDelta = #self.allAps - #self.availableAps
+    local ammoDelta = 0
+
+    for i, aps in pairs(self.availableAps) do
+        if aps == 0 then
+            ammoDelta = ammoDelta + 1
+        end
+    end
+
+    if ammoDelta == 0 then
+        return
+    end
+
     local loadDuration = self.loadDuration * ammoDelta
 
     local timePassed = 0
@@ -134,7 +150,9 @@ end
 
 function FixedAPS:onProjectileSpawned(proj)
     for i, projectile in pairs(proj) do
-        table.insert(self.projectilesWatched, projectile)
+        if projectile.source.team ~= self.teams[self.vehicle.team] then
+            table.insert(self.projectilesWatched, projectile)
+        end
     end
 end
 
@@ -152,6 +170,8 @@ function FixedAPS:Update()
             if proj == self.counterProj then
                 counterProj = nil
             end
+        else 
+            table.remove(self.projectilesWatched, i)
         end
     end
 
