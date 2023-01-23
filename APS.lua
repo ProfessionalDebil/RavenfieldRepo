@@ -6,26 +6,11 @@ function APS:Start()
     self.dataContainer = self.gameObject.GetComponent(DataContainer)
 
     for i, actor in pairs(ActorManager.actors) do
-        for i, weapon in pairs(actor.weaponSlots) do
-            local weaponRole = weapon.GenerateWeaponRoleFromStats()
-            if weaponRole == WeaponRole.RocketLauncher or weaponRole == WeaponRole.MissileLauncher then
-                weapon.onSpawnProjectiles.AddListener(self, "onProjectileSpawned")
-            end
-        end
+        self:onActorSpawn(actor)
     end
 
     for i, vehicle in pairs(ActorManager.vehicles) do
-        for i, seat in pairs(vehicle.seats) do
-            for l, weapon in pairs(seat.weapons) do
-                if weapon == nil then
-                    return
-                end
-                local weaponRole = weapon.GenerateWeaponRoleFromStats()
-                if weaponRole == WeaponRole.RocketLauncher or weaponRole == WeaponRole.MissileLauncher then
-                    weapon.onSpawnProjectiles.AddListener(self, "onProjectileSpawned")
-                end
-            end
-        end
+        self:onVehicleSpawn(vehicle)
     end
 
     GameEvents.onActorSpawn.AddListener(self, "onActorSpawn")
@@ -95,6 +80,9 @@ end
 
 function APS:onActorSpawn(actor)
     for i, weapon in pairs(actor.weaponSlots) do
+        if tostring(weapon) == "SQUAD LEADER KIT (SquadLeaderKit)" then
+            return
+        end
         local weaponRole = weapon.GenerateWeaponRoleFromStats()
         if weaponRole == WeaponRole.RocketLauncher or weaponRole == WeaponRole.MissileLauncher then
             weapon.onSpawnProjectiles.AddListener(self, "onProjectileSpawned")
