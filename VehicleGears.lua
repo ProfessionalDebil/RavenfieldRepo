@@ -54,7 +54,8 @@ function VehicleGears:Update()
             local dragForSpeed = (reverse and self.revDragValues or self.fwdDragValues)[i]
             local accForSpeed = (reverse and self.revAccValues or self.fwdAccValues)[i]
             
-            if dragForSpeed ~= self.lastDrag then
+            if dragForSpeed ~= self.lastDrag or accForSpeed ~= self.lastAcc then
+
                 self:OnHitchChange()
                 self.lastDrag = dragForSpeed
                 self.baseDrag = dragForSpeed
