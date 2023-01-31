@@ -7,8 +7,10 @@ function VehicleGears:Start()
     self.dataContainer = self.gameObject.GetComponent(DataContainer)
 
     self.fwdDragValues = self:Split(self.dataContainer.GetString("forwardDragValues"), " ")
+    self.fwdAccValues = self:Split(self.dataContainer.GetString("forwardAccValues"), " ")
     self.fwdSpeedLimit = self:Split(self.dataContainer.GetString("forwardSpeedLimit"), " ") -- HAS to be in descending order
     self.revDragValues = self:Split(self.dataContainer.GetString("reverseDragValues"), " ")
+    self.revAccValues = self:Split(self.dataContainer.GetString("reverseAccValues"), " ")
     self.revSpeedLimit = self:Split(self.dataContainer.GetString("reverseSpeedLimit"), " ") -- HAS to be in descending order
 
     self.forwardPrefix = self.dataContainer.GetString("forwardPrefix")
@@ -24,9 +26,10 @@ function VehicleGears:Start()
 
     self.hitchSoundBank = self.targets.soundBank.GetComponent(SoundBank)
     self.lastDrag = -1
+    self.lastAcc = -1
 
-    self.hitchDrag = 3.5
     self.hitchDrag = self.dataContainer.GetFloat("hitchDrag")
+    self.hitchAcc = self.dataContainer.GetFloat("hitchAcc")
     self.hitchDuration = self.dataContainer.GetFloat("hitchDuration")
     self.controlGainDelay = self.dataContainer.GetFloat("controlDelay")
 
@@ -34,6 +37,7 @@ function VehicleGears:Start()
     self.dragLeft = 0
     --self.minDrag = 0
     self.baseDrag = 0
+    self.baseAcc= 0
     self.unlocked = 0
 
     --self.gearZip = self:Zip(self.availableModes, self.fireModeValues)
@@ -48,11 +52,15 @@ function VehicleGears:Update()
     for i, speed in pairs(tableToUse) do
         if math.abs(velocity) >= speed and Time.time > self.unlocked then
             local dragForSpeed = (reverse and self.revDragValues or self.fwdDragValues)[i]
+            local accForSpeed = (reverse and self.revAccValues or self.fwdAccValues)[i]
             
             if dragForSpeed ~= self.lastDrag then
                 self:OnHitchChange()
                 self.lastDrag = dragForSpeed
                 self.baseDrag = dragForSpeed
+
+                self.lastAcc = accForSpeed
+                self.baseAcc = accForSpeed
             end
 
             local prefix = reverse and self.reversePrefix or self.forwardPrefix
@@ -64,7 +72,10 @@ function VehicleGears:Update()
         end
     end
 
-    self.vehicle.groundDrag = self.baseDrag + self.hitchDrag * (self.durationLeft / self.hitchDuration)
+    local left = self.durationLeft / self.hitchDuration
+
+    self.vehicle.groundDrag = self.baseDrag + self.hitchDrag * left
+    self.vehicle.acceleration = self.baseAcc + self.hitchAcc * left
 
     if self.durationLeft > 0 then
         self.durationLeft = self.durationLeft - Time.deltaTime
