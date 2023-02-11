@@ -45,14 +45,19 @@ end
 
 function VehicleGears:Update()
     local reverse = self.vehicle.inReverseGear
-    local velocity = self.vehicleTransform.worldToLocalMatrix.MultiplyVector(self.vehicleRigidbody.velocity).z * 3.6
+    local velocity = math.abs(self.vehicleTransform.worldToLocalMatrix.MultiplyVector(self.vehicleRigidbody.velocity).z * 3.6)
 
     local tableToUse = reverse and self.revSpeedLimit or self.fwdSpeedLimit
 
     for i, speed in pairs(tableToUse) do
-        if math.abs(velocity) >= speed and Time.time > self.unlocked then
-            local dragForSpeed = (reverse and self.revDragValues or self.fwdDragValues)[i]
-            local accForSpeed = (reverse and self.revAccValues or self.fwdAccValues)[i]
+        if velocity >= speed and Time.time > self.unlocked then
+            local dragForSpeed = self.fwdDragValues[i]
+            local accForSpeed = self.fwdAccValues[i]
+
+            if reverse then
+                dragForSpeed = self.revDragValues[i]
+                accForSpeed = self.revAccValues[i]
+            end
             
             if dragForSpeed ~= self.lastDrag or accForSpeed ~= self.lastAcc then
 
@@ -76,7 +81,11 @@ function VehicleGears:Update()
     local left = self.durationLeft / self.hitchDuration
 
     self.vehicle.groundDrag = self.baseDrag + self.hitchDrag * left
-    self.vehicle.acceleration = self.baseAcc + self.hitchAcc * left
+    if reverse then
+        self.vehicle.reverseAcceleration = self.baseAcc + self.hitchAcc * left
+    else
+        self.vehicle.acceleration = self.baseAcc + self.hitchAcc * left
+    end
 
     if self.durationLeft > 0 then
         self.durationLeft = self.durationLeft - Time.deltaTime
