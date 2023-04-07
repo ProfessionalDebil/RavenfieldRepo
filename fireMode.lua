@@ -25,6 +25,11 @@ function fireMode:Start()
         self.selectorValues = self:Split(self.dataContainer.GetString("FIREMODE_SELECTORVALUES"), " ")
     end
 
+    self.useTrigger = false
+    if self.dataContainer.HasBool("FIREMODE_USE_TRIGGER") ~= nil then
+        self.useTrigger = self.dataContainer.GetBool("FIREMODE_USE_TRIGGER")
+    end
+
     self.autoResetting = self.dataContainer.GetBool("FIREMODE_AUTORESETTING")
 
     self.suppressed = self.dataContainer.GetBool("FIREMODE_SUPPRESSED")
@@ -65,6 +70,9 @@ end
 function fireMode:changeFireMode()
     modeIndex = modeIndex + 1
     self.animator.SetInteger("FIREMODE_SELECTORVALUES", tonumber(self.selectorValues[(modeIndex % #self.availableModes) + 1]))
+    if self.useTrigger then
+        self.animator.SetTrigger("FIREMODE_CHANGE")
+    end
 
     self:UpdateAudio(self.suppressed)
 end
