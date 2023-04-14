@@ -30,6 +30,12 @@ function fireMode:Start()
         self.useTrigger = self.dataContainer.GetBool("FIREMODE_USE_TRIGGER")
     end
 
+    self.updateParam = false
+    if self.dataContainer.HasBool("FIREMODE_UPDATE_PARAM") ~= nil then
+        self.updateParam = self.dataContainer.GetBool("FIREMODE_UPDATE_PARAM")
+    end
+    self.currentCache = modeIndex % #self.availableModes
+
     self.autoResetting = self.dataContainer.GetBool("FIREMODE_AUTORESETTING")
 
     self.suppressed = self.dataContainer.GetBool("FIREMODE_SUPPRESSED")
@@ -69,7 +75,9 @@ end
 
 function fireMode:changeFireMode()
     modeIndex = modeIndex + 1
-    self.animator.SetInteger("FIREMODE_SELECTORVALUES", tonumber(self.selectorValues[(modeIndex % #self.availableModes) + 1]))
+    --print(tonumber(self.selectorValues[(modeIndex % #self.availableModes) + 1]))
+    self.currentCache = (modeIndex % #self.availableModes) + 1
+    self.animator.SetInteger("FIREMODE_SELECTORVALUES", tonumber(self.selectorValues[self.currentCache]))
     if self.useTrigger then
         self.animator.SetTrigger("FIREMODE_CHANGE")
     end
@@ -87,6 +95,11 @@ function fireMode:hitCap()
     return self.fireModeValues[fireMode]
 end
 
+function fireMode:OnEnable()
+    self.animator.SetInteger("FIREMODE_SELECTORVALUES", tonumber(self.selectorValues[self.currentCache]))
+    print(tonumber(self.selectorValues[self.currentCache]))
+end
+
 function fireMode:Update()
     local flag = self.autoResetting or self.shotsFired == self:hitCap()
     
@@ -98,6 +111,9 @@ function fireMode:Update()
     if Input.GetKeyDown(self.keybind) then
         self:changeFireMode()
     end
+
+    --if self.updateParam then
+    --end
 end
 
 function fireMode:Split(s, delimiter)
