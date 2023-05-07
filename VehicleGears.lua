@@ -32,9 +32,11 @@ function VehicleGears:Start()
     self.hitchAcc = self.dataContainer.GetFloat("hitchAcc")
     self.hitchDuration = self.dataContainer.GetFloat("hitchDuration")
     self.controlGainDelay = self.dataContainer.GetFloat("controlDelay")
+    self.hitchPower = self.dataContainer.GetFloat("hitchPower")
 
     self.hillBase = self.dataContainer.GetFloat("hillBase")
-    self.hillBaseFactor = 1 / self.hillBase
+    self.hillBaseDelta = 1 - self.hillBase
+    self.hillBaseFactor = self.hillBaseDelta / 90
 
     self.durationLeft = 0
     self.dragLeft = 0
@@ -85,7 +87,16 @@ function VehicleGears:Update()
 
     self.vehicle.groundDrag = self.baseDrag + self.hitchDrag * left
 
-    local hillFactor = self.hillBase + ((90 + self.vehicleTransform.eulerAngles.x) / 90 * self.hillBaseFactor)
+    local angle = self.vehicleTransform.eulerAngles.x
+
+    if angle < 90 then
+        angle = 90 - angle
+    elseif angle > 270 then
+        angle = angle - 270
+    end
+
+
+    local hillFactor = (angle * self.hillBaseFactor) + self.hillBase
 
     if reverse then
         self.vehicle.reverseAcceleration = (self.baseAcc * hillFactor) + (self.hitchAcc * left)
@@ -107,6 +118,8 @@ function VehicleGears:OnHitchChange()
     self.durationLeft = self.hitchDuration
     self.unlocked = Time.time + self.hitchDuration + self.controlGainDelay
     self.dragLeft = 0
+
+    self.vehicle.engine.power = self.hitchPower
 end
 
 function VehicleGears:Split(s, delimiter)
