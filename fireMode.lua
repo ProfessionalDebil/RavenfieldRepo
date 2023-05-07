@@ -96,8 +96,11 @@ function fireMode:hitCap()
 end
 
 function fireMode:OnEnable()
+    if self.animator == nil then
+        return
+    end
+
     self.animator.SetInteger("FIREMODE_SELECTORVALUES", tonumber(self.selectorValues[self.currentCache]))
-    print(tonumber(self.selectorValues[self.currentCache]))
 end
 
 function fireMode:Update()
