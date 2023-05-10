@@ -26,12 +26,12 @@ function fireMode:Start()
     end
 
     self.useTrigger = false
-    if self.dataContainer.HasBool("FIREMODE_USE_TRIGGER") ~= nil then
+    if self.dataContainer.HasBool("FIREMODE_USE_TRIGGER") == true then
         self.useTrigger = self.dataContainer.GetBool("FIREMODE_USE_TRIGGER")
     end
 
     self.updateParam = false
-    if self.dataContainer.HasBool("FIREMODE_UPDATE_PARAM") ~= nil then
+    if self.dataContainer.HasBool("FIREMODE_UPDATE_PARAM") == true then
         self.updateParam = self.dataContainer.GetBool("FIREMODE_UPDATE_PARAM")
     end
     self.currentCache = modeIndex % #self.availableModes
