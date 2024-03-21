@@ -19,7 +19,7 @@ function WeaponMeleeSequence:Start()
     self.meleeDamage = self.dataContainer.GetFloat("meleeDamage")
     self.meleeBalance = self.dataContainer.GetFloat("meleeBalance")
     self.meleeKnockback = self.dataContainer.GetFloat("meleeKnockback")
-    self.cooldown = self.ydataContainer.GetFloat("cooldown")
+    self.cooldown = self.dataContainer.GetFloat("cooldown")
 
     self.animInt = 0
 end
