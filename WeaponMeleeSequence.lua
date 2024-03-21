@@ -19,7 +19,7 @@ function WeaponMeleeSequence:Start()
     self.meleeDamage = self.dataContainer.GetFloat("meleeDamage")
     self.meleeBalance = self.dataContainer.GetFloat("meleeBalance")
     self.meleeKnockback = self.dataContainer.GetFloat("meleeKnockback")
-    self.cooldown = self.dataContainer.GetFloat("cooldown")
+    self.cooldown = self.ydataContainer.GetFloat("cooldown")
 
     self.animInt = 0
 end
@@ -43,9 +43,7 @@ function WeaponMeleeSequence:Melee()
     self.animator.SetTrigger("melee")
     self.weapon.LockWeapon()
 
-    randomInt = Mathf.Clamp(randomInt, 0, self.meleeAnimationsCount - 1)
-
-    coroutine.yield(WaitForSeconds(self.durations[randomInt + 1]))
+    coroutine.yield(WaitForSeconds(self.durations[self.animInt + 1]))
 
     if(sphereRaycast ~= nil) then
         local hitActor = self:GetActorTroughBone(sphereRaycast.transform)
@@ -63,7 +61,7 @@ function WeaponMeleeSequence:Melee()
     self.weapon.UnlockWeapon()
 end
 
-function WeaponMeleeSequence:GetActorTroughBone(boneTransform)
+function WeaponMelee:GetActorTroughBone(boneTransform)
 	local gameObject = boneTransform.gameObject
 	while (gameObject.transform.parent ~= nil and gameObject.transform.parent.name ~= "Armature") do
 		gameObject = gameObject.transform.parent.gameObject;
