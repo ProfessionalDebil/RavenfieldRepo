@@ -61,7 +61,7 @@ function WeaponMeleeSequence:Melee()
     self.weapon.UnlockWeapon()
 end
 
-function WeaponMelee:GetActorTroughBone(boneTransform)
+function WeaponMeleeSequence:GetActorTroughBone(boneTransform)
 	local gameObject = boneTransform.gameObject
 	while (gameObject.transform.parent ~= nil and gameObject.transform.parent.name ~= "Armature") do
 		gameObject = gameObject.transform.parent.gameObject;
