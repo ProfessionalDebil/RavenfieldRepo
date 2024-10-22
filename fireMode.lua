@@ -45,6 +45,9 @@ function fireMode:Start()
 
     -- load keybind
     self.keybind = self.dataContainer.GetString("keybind")
+
+    self.thisScriptLock = false
+    self.waitUnlock = false
 end
 
 function fireMode:onFire()
@@ -52,6 +55,7 @@ function fireMode:onFire()
 
     if self.shotsFired == self:hitCap() then
         self.wpn.LockWeapon()
+        self.thisScriptLock = true
         --self.muzzleAudio.enabled = false
     end
 end
@@ -64,12 +68,14 @@ function fireMode:UpdateAudio(isSuppressed)
             self.muzzleAudio.clip = self.firemodeAutoS
         end
         self.wpn.isAuto = true
+        self.muzzleAudio.loop = self:hitCap() == -1
     else
         self.muzzleAudio.clip = self.firemodeSingle
         if self.suppressed then
             self.muzzleAudio.clip = self.firemodeSingleS
         end
         self.wpn.isAuto = false
+        self.muzzleAudio.loop = false
     end
 end
 
@@ -105,9 +111,19 @@ end
 
 function fireMode:Update()
     local flag = self.autoResetting or self.shotsFired == self:hitCap()
+
+    if not self.thisScriptLock and self.wpn.isLocked then
+        self.waitUnlock = true
+        self.wpn.LockWeapon()
+    end
     
-    if not Input.GetKeyBindButton(KeyBinds.Fire) and flag then
+    if self.waitUnlock and not self.wpn.isLocked then
+        self.waitUnlock = false
+    end
+
+    if not Input.GetKeyBindButton(KeyBinds.Fire) and flag and not self.waitUnlock then
         self.wpn.UnlockWeapon()
+        self.thisScriptLock = false
         self.shotsFired = 0
     end
 
