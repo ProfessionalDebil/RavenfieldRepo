@@ -21,19 +21,24 @@ function fireMode:Start()
     self.firemodeSingle = self.dataContainer.HasAudioClip("FIREMODE_SINGLE") and self.dataContainer.GetAudioClip("FIREMODE_SINGLE") or nil
     self.firemodeAutoS = self.dataContainer.HasAudioClip("FIREMODE_AUTO_S") and self.dataContainer.GetAudioClip("FIREMODE_AUTO_S") or nil
     self.firemodeSingleS = self.dataContainer.HasAudioClip("FIREMODE_SINGLE_S") and self.dataContainer.GetAudioClip("FIREMODE_SINGLE_S") or nil
+    
     if self.dataContainer.GetString("FIREMODE_SELECTORVALUES") ~= nil then
         self.selectorValues = self:Split(self.dataContainer.GetString("FIREMODE_SELECTORVALUES"), " ")
     end
 
-    self.useTrigger = false
     if self.dataContainer.HasBool("FIREMODE_USE_TRIGGER") == true then
         self.useTrigger = self.dataContainer.GetBool("FIREMODE_USE_TRIGGER")
+    else
+            self.useTrigger = false
+            print("Auto")
     end
 
-    self.updateParam = false
     if self.dataContainer.HasBool("FIREMODE_UPDATE_PARAM") == true then
         self.updateParam = self.dataContainer.GetBool("FIREMODE_UPDATE_PARAM")
+    else
+        self.updateParam = false
     end
+
     self.currentCache = modeIndex % #self.availableModes
 
     self.autoResetting = self.dataContainer.GetBool("FIREMODE_AUTORESETTING")
@@ -81,7 +86,15 @@ end
 
 function fireMode:changeFireMode()
     modeIndex = modeIndex + 1
-    --print(tonumber(self.selectorValues[(modeIndex % #self.availableModes) + 1]))
+    if self.currentCache == 1 then
+        print("Semi")
+    end
+    if self.currentCache == 2 then
+        print("Burst")
+    end
+    if self.currentCache == 3 then
+        print("Auto")
+    end
     self.currentCache = (modeIndex % #self.availableModes) + 1
     self.animator.SetInteger("FIREMODE_SELECTORVALUES", tonumber(self.selectorValues[self.currentCache]))
     if self.useTrigger then
@@ -102,11 +115,21 @@ function fireMode:hitCap()
 end
 
 function fireMode:OnEnable()
-    if self.animator == nil then
-        return
+    if self.animator == nil then      
+        print("Default State")
+    end        
+    if self.currentCache == 0 then
+        print("Auto")
     end
-
-    self.animator.SetInteger("FIREMODE_SELECTORVALUES", tonumber(self.selectorValues[self.currentCache]))
+    if self.currentCache == 1 then
+        print("Auto")
+    end
+    if self.currentCache == 2 then
+        print("Semi")
+    end
+    if self.currentCache == 3 then
+        print("Burst")
+    end
 end
 
 function fireMode:Update()
