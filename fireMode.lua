@@ -36,6 +36,11 @@ function fireMode:Start()
     end
     self.currentCache = modeIndex % #self.availableModes
 
+    self.nonAutoLoopAudio = false
+    if self.dataContainer.HasBool("FIREMODE_NON_AUTO_LOOP_AUDIO") == true then
+        self.nonAutoLoopAudio = self.dataContainer.GetBool("FIREMODE_NON_AUTO_LOOP_AUDIO")
+    end
+
     self.autoResetting = self.dataContainer.GetBool("FIREMODE_AUTORESETTING")
 
     self.suppressed = self.dataContainer.GetBool("FIREMODE_SUPPRESSED")
@@ -68,7 +73,7 @@ function fireMode:UpdateAudio(isSuppressed)
             self.muzzleAudio.clip = self.firemodeAutoS
         end
         self.wpn.isAuto = true
-        self.muzzleAudio.loop = self:hitCap() == -1
+        self.muzzleAudio.loop = (self:hitCap() == -1 or self.nonAutoLoopAudio)
     else
         self.muzzleAudio.clip = self.firemodeSingle
         if self.suppressed then
