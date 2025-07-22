@@ -34,18 +34,18 @@ function fireMode:Start()
     end
 
     self.useTrigger = false
-    if self.dataContainer.HasBool("FIREMODE_USE_TRIGGER") == true then
+    if self.dataContainer.HasBool("FIREMODE_USE_TRIGGER") then
         self.useTrigger = self.dataContainer.GetBool("FIREMODE_USE_TRIGGER")
     end
 
     self.updateParam = false
-    if self.dataContainer.HasBool("FIREMODE_UPDATE_PARAM") == true then
+    if self.dataContainer.HasBool("FIREMODE_UPDATE_PARAM") then
         self.updateParam = self.dataContainer.GetBool("FIREMODE_UPDATE_PARAM")
     end
     self.currentCache = modeIndex % #self.availableModes
 
     self.nonAutoLoopAudio = false
-    if self.dataContainer.HasBool("FIREMODE_NON_AUTO_LOOP_AUDIO") == true then
+    if self.dataContainer.HasBool("FIREMODE_NON_AUTO_LOOP_AUDIO") then
         self.nonAutoLoopAudio = self.dataContainer.GetBool("FIREMODE_NON_AUTO_LOOP_AUDIO")
     end
 
@@ -57,7 +57,11 @@ function fireMode:Start()
     self.animator.SetInteger("FIREMODE_SELECTORVALUES", tonumber(self.selectorValues[(modeIndex % #self.availableModes) + 1]))
 
     -- load keybind
-    self.keybind = self.dataContainer.GetString("keybind")
+    if self.dataContainer.HasString("FIREMODE_KEYBIND") then
+        self.keybind = self.dataContainer.GetString("FIREMODE_KEYBIND")
+    else
+        self.keybind = self.dataContainer.GetString("keybind")
+    end
 
     self.thisScriptLock = false
     self.waitUnlock = false
