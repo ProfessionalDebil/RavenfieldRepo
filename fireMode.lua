@@ -25,6 +25,14 @@ function fireMode:Start()
         self.selectorValues = self:Split(self.dataContainer.GetString("FIREMODE_SELECTORVALUES"), " ")
     end
 
+    self.changeCooldown = self.dataContainer.HasString("FIREMODE_COOLDOWNS")
+    if self.changeCooldown then
+        self.cooldowns = {}
+        for match in (self.dataContainer.GetString("FIREMODE_COOLDOWNS").." "):gmatch("(.-) ") do
+            table.insert(self.cooldowns, tonumber(match))
+        end
+    end
+
     self.useTrigger = false
     if self.dataContainer.HasBool("FIREMODE_USE_TRIGGER") == true then
         self.useTrigger = self.dataContainer.GetBool("FIREMODE_USE_TRIGGER")
@@ -91,6 +99,9 @@ function fireMode:changeFireMode()
     self.animator.SetInteger("FIREMODE_SELECTORVALUES", tonumber(self.selectorValues[self.currentCache]))
     if self.useTrigger then
         self.animator.SetTrigger("FIREMODE_CHANGE")
+    end
+    if self.changeCooldown then
+        self.wpn.cooldown = self.cooldowns[self.currentCache]
     end
 
     self:UpdateAudio(self.suppressed)
