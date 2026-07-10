@@ -1,4 +1,4 @@
-behaviour("StickyProjectile") -- v1.1.0
+behaviour("StickyProjectile") -- v1.1.1
 
 function StickyProjectile:Start()
     self.dataContainer = self.targets.dataContainer
@@ -21,7 +21,6 @@ function StickyProjectile:Update()
         self.rotation = self.projectile.transform.localRotation
 
         if colliders[1] then
-            print(colliders[1])
             self.projectile.transform.parent = colliders[1].transform
             self.position = self.projectile.transform.localPosition
             self.rotation = self.projectile.transform.localRotation
