@@ -1,8 +1,9 @@
-behaviour("StickyProjectile") -- v1.0.0
+behaviour("StickyProjectile") -- v1.1.0
 
 function StickyProjectile:Start()
     self.dataContainer = self.targets.dataContainer
     self.projectile = self.targets.projectile
+    self.incendiaryBullet = self.targets.incendiaryBullet
 
     self.radius = self.dataContainer.GetFloat("radius")
 
@@ -13,21 +14,35 @@ function StickyProjectile:Start()
 end
 
 function StickyProjectile:Update()
-    if self.projectile.velocity.sqrMagnitude <= 0.001 and not self.hit then
-        self.hit = true
+    if ((self.projectile.velocity.sqrMagnitude <= 0.001) or ((not self.projectile.isActive) and (not self.projectile.isGrenadeProjectile))) and not self.hit then
+        local colliders = Physics.OverlapSphere(self.projectile.transform.position, self.radius, 4353)
 
-        local colliders = Physics.OverlapSphere(self.projectile.transform.position, self.radius, RaycastTarget.ProjectileHit)
+        self.position = self.projectile.transform.localPosition
+        self.rotation = self.projectile.transform.localRotation
 
-        if colliders[1] ~= nil then
+        if colliders[1] then
+            print(colliders[1])
             self.projectile.transform.parent = colliders[1].transform
-            self.position = self.projectile.transform.position
-            self.rotation = self.projectile.transform.rotation
+            self.position = self.projectile.transform.localPosition
+            self.rotation = self.projectile.transform.localRotation
+
+            if self.incendiaryBullet then
+                local vehicleScript = colliders[1].transform.root.gameObject.GetComponent(Vehicle)
+    
+                if vehicleScript then
+                    if vehicleScript.armorDamagedBy == ArmorRating.SmallArms then
+                        self.incendiaryBullet.self:Init(vehicleScript, self.projectile)
+                    end
+                end
+            end
         end
+
+        self.hit = true
     end
 
     if self.hit then
-        self.projectile.transform.position = self.position
-        self.projectile.transform.rotation = self.rotation
+        self.projectile.transform.localPosition = self.position
+        self.projectile.transform.localRotation = self.rotation
         self.projectile.velocity = Vector3.zero
     end
 end
