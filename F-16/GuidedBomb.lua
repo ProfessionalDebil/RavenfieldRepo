@@ -1,8 +1,7 @@
-behaviour("GuidedBomb") --v1.0.0
+behaviour("GuidedBomb") --v1.1.0
 
 function GuidedBomb:Init(guidanceTarget, turnRate, isLaserGuided, laserTrackerManager)
     self.projectile = self.gameObject.GetComponent(Projectile)
-    -- self.dataContainer = self.gameObject.GetComponent(DataContainer)
     self.transform = self.gameObject.transform
     self.turnRate = turnRate
     self.isLaserGuided = isLaserGuided
@@ -19,8 +18,10 @@ end
 function GuidedBomb:Update()
     local target = nil
 
-    if self.isLaserGuided then
+    if self.isLaserGuided and self.laserTrackerManager then
         target = self.laserTrackerManager:Get(self.code)
+    elseif self.isLaserGuided then
+        target = self.target.transform.position
     else
         target = self.target
     end
