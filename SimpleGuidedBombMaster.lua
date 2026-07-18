@@ -1,4 +1,4 @@
-behaviour("SimpleGuidedBombMaster") --v1.0.0
+behaviour("SimpleGuidedBombMaster") --v1.1.0
 
 function SimpleGuidedBombMaster:Start()
     self.dataContainer = self.gameObject.GetComponent(DataContainer)
@@ -14,7 +14,13 @@ function SimpleGuidedBombMaster:Start()
         self.ring = self.targets.ring.transform
     end
 
+    if self.targets.lookAtCCIPRing then
+        self.lookAtCCIPRing = self.targets.lookAtCCIPRing.transform
+    end
+
     self.target = nil
+    self.transform = self.gameObject.transform
+    self.noTargetRotation = Quaternion.Euler(90, 0, 0)
 end
 
 function SimpleGuidedBombMaster:Update()
@@ -27,6 +33,16 @@ function SimpleGuidedBombMaster:Update()
             self.target = vehicle
             break
         end
+    end
+
+    if self.target then
+        self.ring.LookAt(self.target.transform.position, self.transform.up)
+
+        if self.targets.lookAtCCIPRing then
+            self.lookAtCCIPRing.localRotation = self.noTargetRotation
+        end
+    else
+        self.ring.localRotation = self.noTargetRotation
     end
 end
 
