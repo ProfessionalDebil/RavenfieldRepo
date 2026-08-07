@@ -1,4 +1,4 @@
-behaviour("LookAtCCIP") --v1.1.0
+behaviour("LookAtCCIP") --v1.1.1
 
 function LookAtCCIP:Start()
     self.dataContainer = self.gameObject.GetComponent(DataContainer)
@@ -26,15 +26,17 @@ function LookAtCCIP:Start()
 end
 
 function LookAtCCIP:Update()
-    if self.line ~= nil then
+    if self.line then
         self.line.SetPosition(0, self.origin.position)
         self.line.SetPosition(1, self.ring.position + self.ring.forward * self.lineRange)
     end
 
-    if self.gun ~= nil then
+    if self.gun then
         if not (self.gun.activeSightModeIndex == 1) then
             self.ring.localRotation = Quaternion.identity
-            self.line.SetPosition(0, self.ring.position + self.ring.forward * self.lineRange)
+            if self.line then
+                self.line.SetPosition(0, self.ring.position + self.ring.forward * self.lineRange)
+            end
             return
         end
     end
